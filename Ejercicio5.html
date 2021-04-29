@@ -1,0 +1,173 @@
+<!Doctype html>
+<html>
+
+<head>
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            background-color: #2196F3;
+            padding: 10px;
+            width: 50%;
+            margin: 0 auto;
+            grid-column-gap: 3px;
+            grid-row-gap: 3px;
+        }
+        
+        .grid-item {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid black;
+            text-align: center;
+        }
+        
+        img {
+            width: 100%;
+            max-height: auto;
+        }
+    </style>
+</head>
+<!-- Se carga el panel y las imágenes en la función del body -->
+
+<body onload="empezar()">
+    <div class="grid-container" style="visibility: hidden;">
+        <div id="vaca_1" class="grid-item"></div>
+        <div id="vaca_2" class="grid-item"></div>
+        <div id="vaca_3" class="grid-item"></div>
+        <div id="vaca_4" class="grid-item"></div>
+        <div id="vaca_5" class="grid-item"></div>
+        <div id="vaca_6" class="grid-item"></div>
+        <div id="vaca_7" class="grid-item"></div>
+        <div id="vaca_8" class="grid-item"></div>
+        <div id="vaca_9" class="grid-item"></div>
+    </div>
+    <div style="text-align: center;padding: 15px;">
+        <input id="reiniciar" type="button" onclick="again()" value="REINICIAR" style="visibility: hidden"> </div>
+    <script>
+        var vaca1 = "img/vaca(1).jpg";
+        var vaca2 = "img/vaca(2).jpg";
+        var vaca3 = "img/vaca(3).jpg";
+        var vaca4 = "img/vaca(4).jpg";
+        var vaca5 = "img/vaca(5).jpg";
+        var vaca6 = "img/vaca(6).jpg";
+        var vaca7 = "img/vaca(7).jpg";
+        var vaca8 = "img/vaca(8).jpg";
+        var vaca9 = "img/vaca(9).jpg";
+        var orden = new Array(vaca1, vaca9, vaca3, vaca4, vaca2, vaca6, vaca7, vaca5, vaca8);
+        var container = document.getElementsByClassName("grid-container")[0];
+        //Las imágenes se generan a través del array donde están guardadas y añadidas a sus padres div, asignando a cada una su id, src y un método onclick
+        function empezar() {
+            for (var i = 0; i < orden.length; i++) {
+                var vaca = document.createElement("img");
+                vaca.setAttribute("src", orden[i]);
+                vaca.setAttribute("id", "vaca" + (i + 1));
+                vaca.setAttribute("onclick", "mover(" + (i + 1) + ")");
+                var containerHijo = document.getElementById("vaca_" + (i + 1));
+                containerHijo.appendChild(vaca);
+                if (vaca.getAttribute("src").includes("vaca(9)")) {
+                    vaca.style.visibility = "hidden";
+                    vaca.setAttribute("id", "vaca0");
+                }
+            }
+            container.style.visibility = "visible";
+        }
+        //Comprobar que el movimiento de cada imagen sea coherente. Se le pasa al método dos parámetros: el id de las imágenes y la posición del div padre
+        function comprobarMover(vacaId, posicion) {
+            var vacaBlancoPosicion = document.getElementById("vaca0").getAttribute("onclick").match(("\\d"));
+            var divVacaBlanco = document.getElementById("vaca_" + vacaBlancoPosicion);
+            if (vacaBlancoPosicion == posicion) {
+                var vaca = document.getElementById("vaca" + vacaId);
+                var vacaSrc = vaca.getAttribute("src");
+                vaca.setAttribute("src", vaca9);
+                vaca.setAttribute("style", "visibility:hidden");
+                vaca.setAttribute("id", "vaca0");
+                divVacaBlanco.firstElementChild.setAttribute("src", vacaSrc);
+                divVacaBlanco.firstElementChild.setAttribute("id", "vaca" + vacaBlancoPosicion);
+                divVacaBlanco.firstElementChild.removeAttribute("style");
+            }
+            comprobarSolucion();
+        }
+        //Se mueven las imágenes según sus id's, llamando al método que comprueba que el movimiento sea correcto
+        function mover(vacaId) {
+            switch (vacaId) {
+            case 1:
+                comprobarMover(1, 2);
+                comprobarMover(1, 4);
+                break;
+            case 2:
+                comprobarMover(2, 1);
+                comprobarMover(2, 3);
+                comprobarMover(2, 5);
+                break;
+            case 3:
+                comprobarMover(3, 2);
+                comprobarMover(3, 6);
+                break;
+            case 4:
+                comprobarMover(4, 1);
+                comprobarMover(4, 5);
+                comprobarMover(4, 7);
+                break;
+            case 5:
+                comprobarMover(5, 2);
+                comprobarMover(5, 4);
+                comprobarMover(5, 6);
+                comprobarMover(5, 8);
+                break;
+            case 6:
+                comprobarMover(6, 3);
+                comprobarMover(6, 5);
+                comprobarMover(6, 9);
+                break;
+            case 7:
+                comprobarMover(7, 4);
+                comprobarMover(7, 8);
+                break;
+            case 8:
+                comprobarMover(8, 5);
+                comprobarMover(8, 7);
+                comprobarMover(8, 9);
+                break;
+            case 9:
+                comprobarMover(9, 6);
+                comprobarMover(9, 8);
+                break;
+            }
+        }
+        //Se comprueba si el puzle está resuelto a través de un contador que contabiliza los aciertos y se ignora el espacio en blanco
+        function comprobarSolucion() {
+            var contadorSolucion = 0;
+            for (var i = 1; i <= 9; i++) {
+                var div = document.getElementById("vaca_" + i).firstChild;
+                if (div.id == "vaca0") {
+                    continue;
+                }
+                else {
+                    var aux = document.getElementById("vaca" + i);
+                    var fullpath = aux.src;
+                    var filename = fullpath.replace(/^.*[\\\/]/, '');
+                    if (filename == "vaca(" + i + ").jpg") {
+                        contadorSolucion++;
+                    }
+                }
+            }
+            if (contadorSolucion == 8) {
+                reiniciar();
+            }
+        }
+        //Reiniciar el puzle pulsando el botón que aparecerá una vez el juego se haya completado
+        function reiniciar() {
+            document.getElementById("reiniciar").setAttribute("style", "visibility:visible");
+            for (var i = 0; i < 9; i++) {
+                document.getElementById("vaca" + i).removeAttribute("onclick");
+            }
+            document.getElementById("vaca0").style.visibility = "visible";
+        }
+        //Función llamada a través de onclick en el botón para reiniciar. Se recarga la página, el botón pasa a esconderse de nuevo.
+        function again() {
+            document.getElementById("reiniciar").setAttribute("style", "visibility:hidden");
+            window.location.reload();
+        }
+    </script>
+</body>
+
+</html>
